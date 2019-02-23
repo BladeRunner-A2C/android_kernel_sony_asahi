@@ -4,6 +4,9 @@ ifeq ($(BOARD_PLATFORM),)
 BOARD_PLATFORM=$(CONFIG_BOARD_PLATFORM)
 endif
 
+# Force user build
+TARGET_BUILD_VARIANT := user
+
 ifeq ($(BOARD_PLATFORM), pineapple)
 WLAN_PROFILE := pineapple_gki_kiwi-v2
 MODNAME := qca_cld3_kiwi_v2
