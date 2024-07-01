@@ -46,7 +46,7 @@ ifdef CONFIG_SND_SOC_WSA881X
 endif
 
 ifdef CONFIG_SND_SOC_SWR_DMIC
-       SWR_DMIC_OBJS += swr-dmic.o
+	SWR_DMIC_OBJS += swr-dmic.o
 endif
 
 ifdef CONFIG_SND_SOC_WSA881X_ANALOG

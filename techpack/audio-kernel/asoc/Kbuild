@@ -80,8 +80,8 @@ endif
 
 # for sa7255 sound card driver
 ifdef CONFIG_SND_SOC_SA7255_AUTO_SPF
-    SPF_MACHINE_OBJS += msm_common.o
-    SPF_MACHINE_OBJS += auto_spf_dummy.o
+	SPF_MACHINE_OBJS += msm_common.o
+	SPF_MACHINE_OBJS += auto_spf_dummy.o
 endif
 
 ifdef CONFIG_SND_SOC_QDSP6V2
@@ -93,7 +93,7 @@ ifdef CONFIG_SND_SOC_SDX
 endif
 
 ifdef CONFIG_SND_SOC_GVM_AUTO_SPF
-    SPF_MACHINE_OBJS += gvm_auto_spf_dummy.o
+	SPF_MACHINE_OBJS += gvm_auto_spf_dummy.o
 endif
 
 # Module information used by KBuild framework
