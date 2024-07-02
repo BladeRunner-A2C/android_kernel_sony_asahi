@@ -72,38 +72,7 @@ LINUX_INC +=	-I$(DISPLAY_ROOT) \
 	-I$(DISPLAY_ROOT)/msm/sde \
 	-I$(DISPLAY_ROOT)/include/uapi/display \
 
-CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
-	-DANI_LITTLE_BIT_ENDIAN \
-	-DDOT11F_LITTLE_ENDIAN_HOST \
-	-DANI_COMPILER_TYPE_GCC \
-	-DANI_OS_TYPE_ANDROID=6 \
-	-DPTT_SOCK_SVC_ENABLE \
-	-Wall\
-	-Werror\
-	-D__linux__
-
-KBUILD_CPPFLAGS += $(CDEFINES)
-
 ccflags-y += $(LINUX_INC)
-
-ifeq ($(call cc-option-yn, -Wmaybe-uninitialized),y)
-EXTRA_CFLAGS += -Wmaybe-uninitialized
-endif
-
-KBUILD_EXTRA_SYMBOLS +=$(OUT)/obj/vendor/qcom/opensource/display-drivers/hdcp/Module.symvers
-KBUILD_EXTRA_SYMBOLS +=$(OUT)/obj/vendor/qcom/opensource/display-drivers/msm/Module.symvers
-
-ifeq ($(call cc-option-yn, -Wheader-guard),y)
-EXTRA_CFLAGS += -Wheader-guard
-endif
-
-ccflags-y += -Wformat-extra-args -Wstrict-prototypes -Wformat-insufficient-args \
-		-Wformat-invalid-specifier -Wformat-zero-length -Wnonnull
-
-ifneq ($(MODNAME), qdsp6v2)
-CHIP_NAME ?= $(MODNAME)
-CDEFINES += -DMULTI_IF_NAME=\"$(CHIP_NAME)\"
-endif
 
 ######### CONFIG_DRM_MSM ########
 obj-$(CONFIG_DRM_MSM) += msm_drm.o
