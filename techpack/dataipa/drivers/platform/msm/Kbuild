@@ -1,66 +1,76 @@
 # SPDX-License-Identifier: GPL-2.0-only
-DATAIPADRVTOP = $(srctree)/techpack/dataipa/drivers/platform/msm
+kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+DATAIPADRVTOP = $(kbuild-dir)
+subdir-ccflags-y += -DGSI_TRACE_INCLUDE_PATH=$(kbuild-dir)/gsi
+subdir-ccflags-y += -DIPA_TRACE_INCLUDE_PATH=$(kbuild-dir)/ipa/ipa_v3
+subdir-ccflags-y += -DRNDIS_TRACE_INCLUDE_PATH=$(kbuild-dir)/ipa/ipa_clients
+ifeq ($(CONFIG_ARCH_NIOBE), y)
+subdir-ccflags-y += -DCONFIG_IPA_RTP
+subdir-ccflags-y += -I$(kbuild-dir)/../../../../synx-kernel/include/uapi/synx/media
+subdir-ccflags-y += -I$(kbuild-dir)/../../../../synx-kernel/msm/synx
+else
+subdir-ccflags-y += -DCONFIG_IPA_RMNET_MEM
+subdir-ccflags-y += -I$(kbuild-dir)/../../../../datarmnet-ext/mem
+endif
 
 #MSMs - GKI
 ifeq ($(CONFIG_ARCH_LAHAINA), y)
-LINUXINCLUDE    += -include $(srctree)/techpack/dataipa/config/dataipa.h
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/dataipa.h
 ifeq ($(CONFIG_QGKI),y)
-include $(srctree)/techpack/dataipa/config/dataipa_QGKI.conf
+include $(kbuild-dir)/../../../config/dataipa_QGKI.conf
 ifeq ($(CONFIG_LOCALVERSION), "-qgki-debug")
-include $(srctree)/techpack/dataipa/config/dataipa_debug.conf
-LINUXINCLUDE    += -include $(srctree)/techpack/dataipa/config/dataipa_debug.h
+include $(kbuild-dir)/../../../config/dataipa_debug.conf
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/dataipa_debug.h
 endif
 else
-include $(srctree)/techpack/dataipa/config/dataipa_GKI.conf
+include $(kbuild-dir)/../../../config/dataipa_GKI.conf
 endif
 endif
 
 #MSM - Vendor SI
 ifeq ($(filter $(CONFIG_ARCH_WAIPIO) $(CONFIG_ARCH_KALAMA) $(CONFIG_ARCH_PINEAPPLE) $(CONFIG_ARCH_CLIFFS) $(CONFIG_ARCH_PITTI) $(CONFIG_ARCH_VOLCANO), y),y)
-DATAIPADRVTOP = $(srctree)/../../vendor/qcom/opensource/dataipa/drivers/platform/msm
-LINUXINCLUDE    += -include $(srctree)/../../vendor/qcom/opensource/dataipa/config/dataipa_vendor.h
-include $(srctree)/../../vendor/qcom/opensource/dataipa/config/dataipa_GKI.conf
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/dataipa_vendor.h
+include $(kbuild-dir)/../../../config/dataipa_GKI.conf
 ifeq ($(CONFIG_LOCALVERSION), "-gki-consolidate")
-include $(srctree)/../../vendor/qcom/opensource/dataipa/config/dataipa_GKI_consolidate.conf
-LINUXINCLUDE    += -include $(srctree)/../../vendor/qcom/opensource/dataipa/config/dataipa_debug.h
+include $(kbuild-dir)/../../../config/dataipa_GKI_consolidate.conf
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/dataipa_debug.h
 endif
 endif
 
 ifeq ($(filter $(CONFIG_ARCH_KHAJE) $(CONFIG_ARCH_BLAIR) $(CONFIG_ARCH_HOLI) $(CONFIG_ARCH_MONACO), y), y)
-DATAIPADRVTOP = $(srctree)/../../vendor/qcom/opensource/dataipa/drivers/platform/msm
-LINUXINCLUDE    += -include $(srctree)/../../vendor/qcom/opensource/dataipa/config/dataipa_vendor_ipav4.h
-include $(srctree)/../../vendor/qcom/opensource/dataipa/config/dataipa_GKI_ipav4.conf
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/dataipa_vendor_ipav4.h
+include $(kbuild-dir)/../../../config/dataipa_GKI_ipav4.conf
 ifeq ($(CONFIG_LOCALVERSION), "-gki-consolidate")
-include $(srctree)/../../vendor/qcom/opensource/dataipa/config/dataipa_GKI_consolidate.conf
-LINUXINCLUDE    += -include $(srctree)/../../vendor/qcom/opensource/dataipa/config/dataipa_debug.h
+include $(kbuild-dir)/../../../config/dataipa_GKI_consolidate.conf
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/dataipa_debug.h
 endif
 endif
 
 #MDMs
 ifeq ($(CONFIG_ARCH_SDXLEMUR), y)
-LINUXINCLUDE    += -include $(srctree)/techpack/dataipa/config/dataipa.h
-include $(srctree)/techpack/dataipa/config/dataipa_QGKI.conf
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/dataipa.h
+include $(kbuild-dir)/../../../config/dataipa_QGKI.conf
 ifneq ($(CONFIG_LOCALVERSION), "-perf")
-include $(srctree)/techpack/dataipa/config/dataipa_debug.conf
-LINUXINCLUDE    += -include $(srctree)/techpack/dataipa/config/dataipa_debug.h
+include $(kbuild-dir)/../../../config/dataipa_debug.conf
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/dataipa_debug.h
 endif
 endif
 
 ifeq ($(CONFIG_ARCH_SDXNIGHTJAR), y)
-LINUXINCLUDE    += -include $(srctree)/techpack/dataipa/config/sdx12dataipa.h
-include $(srctree)/techpack/dataipa/config/sdx12dataipa_QGKI.conf
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/sdx12dataipa.h
+include $(kbuild-dir)/../../../config/sdx12dataipa_QGKI.conf
 ifneq ($(CONFIG_LOCALVERSION), "-perf")
-include $(srctree)/techpack/dataipa/config/dataipa_debug.conf
-LINUXINCLUDE    += -include $(srctree)/techpack/dataipa/config/dataipa_debug.h
+include $(kbuild-dir)/../../../config/dataipa_debug.conf
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/dataipa_debug.h
 endif
 endif
 
 ifeq ($(CONFIG_ARCH_SCUBA), y)
-LINUXINCLUDE    += -include $(srctree)/techpack/dataipa/config/sa410mdataipa.h
-include $(srctree)/techpack/dataipa/config/sa410mdataipa_QGKI.conf
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/sa410mdataipa.h
+include $(kbuild-dir)/../../../config/sa410mdataipa_QGKI.conf
 ifneq ($(CONFIG_LOCALVERSION), "-perf")
-include $(srctree)/techpack/dataipa/config/dataipa_debug.conf
-LINUXINCLUDE    += -include $(srctree)/techpack/dataipa/config/dataipa_debug.h
+include $(kbuild-dir)/../../../config/dataipa_debug.conf
+LINUXINCLUDE    += -include $(kbuild-dir)/../../../config/dataipa_debug.h
 endif
 endif
 
