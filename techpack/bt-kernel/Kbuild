@@ -1,22 +1,10 @@
-ifeq ($(CONFIG_MSM_BT_POWER),m)
-KBUILD_CPPFLAGS += -DCONFIG_MSM_BT_POWER
-endif
+kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
 
-ifeq ($(CONFIG_BTFM_SLIM),m)
-KBUILD_CPPFLAGS += -DCONFIG_BTFM_SLIM
-endif
+subdir-ccflags-y += -I$(kbuild-dir)/include
+subdir-ccflags-y += -I$(kbuild-dir)/../securemsm-kernel/include
 
-ifeq ($(CONFIG_I2C_RTC6226_QCA),m)
-KBUILD_CPPFLAGS += -DCONFIG_I2C_RTC6226_QCA
-endif
-
-ifeq ($(CONFIG_SLIM_BTFM_CODEC), m)
-KBUILD_CPPFLAGS += -DCONFIG_SLIM_BTFM_CODEC
-endif
-
-ifeq ($(CONFIG_BT_HW_SECURE_DISABLE), y)
-KBUILD_CPPFLAGS += -DCONFIG_BT_HW_SECURE_DISABLE
-endif
+include $(kbuild-dir)/config/auto.conf
+subdir-ccflags-y += -include $(kbuild-dir)/config/autoconf.h
 
 ifeq ($(CONFIG_BTFM_SWR),m)
 KBUILD_CPPFLAGS += -DCONFIG_BTFM_SWR
