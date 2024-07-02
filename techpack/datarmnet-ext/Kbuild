@@ -1,0 +1,14 @@
+kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+
+subdir-ccflags-y := -I$(kbuild-dir)/../datarmnet/core
+
+ifneq ($(CONFIG_ARCH_BLAIR), y)
+obj-y += aps/
+endif
+obj-y += mem/
+obj-y += offload/
+obj-y += perf/
+obj-y += perf_tether/
+obj-y += sch/
+obj-y += shs/
+obj-y += wlan/
