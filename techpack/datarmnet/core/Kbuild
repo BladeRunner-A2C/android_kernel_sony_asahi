@@ -1,5 +1,11 @@
+kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+ccflags-y += -DRMNET_TRACE_INCLUDE_PATH=$(kbuild-dir)
+ccflags-y += -I$(kbuild-dir)/../../dataipa/drivers/platform/msm/include/uapi
+ccflags-y += -I$(kbuild-dir)/../../dataipa/drivers/platform/msm/include
+ccflags-y += -I$(kbuild-dir)/../../datarmnet-ext/mem
+
 ifneq (, $(filter y, $(CONFIG_ARCH_PINEAPPLE) $(CONFIG_ARCH_BLAIR) $(CONFIG_ARCH_MONACO) $(CONFIG_ARCH_PITTI)))
-ccflags-y	+= -DRMNET_LA_PLATFORM
+ccflags-y	+= -DCONFIG_RMNET_LA_PLATFORM
 endif
 
 obj-m += rmnet_core.o
