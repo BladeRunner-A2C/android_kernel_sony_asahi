@@ -1,3 +1,8 @@
+ifeq ($(DSP_ROOT),)
+DSP_ROOT=$(srctree)/$(src)
+ccflags-y += -DDSP_TRACE_INCLUDE_PATH=$(DSP_ROOT)/dsp
+endif
+
 # ported from Android.mk
 $(info within KBUILD file KBUILD_EXTRA_SYMBOLS = $(KBUILD_EXTRA_SYMBOLS))
 
