@@ -1,3 +1,19 @@
+kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+WLAN_PLATFORM_ROOT ?= $(kbuild-dir)
+BOARD_PLATFORM ?= $(CONFIG_BOARD_PLATFORM)
+export WLAN_PLATFORM_ROOT
+
+ifeq ($(BOARD_PLATFORM), pineapple)
+include $(kbuild-dir)/cnss2/pineapple_gki_defconfig
+include $(kbuild-dir)/cnss_genl/pineapple_gki_defconfig
+include $(kbuild-dir)/cnss_prealloc/pineapple_gki_defconfig
+include $(kbuild-dir)/cnss_utils/pineapple_gki_defconfig
+export $(shell sed 's/=.*//' $(kbuild-dir)/cnss2/pineapple_gki_defconfig)
+export $(shell sed 's/=.*//' $(kbuild-dir)/cnss_genl/pineapple_gki_defconfig)
+export $(shell sed 's/=.*//' $(kbuild-dir)/cnss_prealloc/pineapple_gki_defconfig)
+export $(shell sed 's/=.*//' $(kbuild-dir)/cnss_utils/pineapple_gki_defconfig)
+endif
+
 ifeq ($(CONFIG_CNSS_OUT_OF_TREE),y)
 KBUILD_CPPFLAGS += -DCONFIG_CNSS_OUT_OF_TREE
 endif
