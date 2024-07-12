@@ -6,14 +6,13 @@ WLAN_COMMON_ROOT ?= cmn
 WLAN_COMMON_INC ?= $(WLAN_ROOT)/$(WLAN_COMMON_ROOT)
 WLAN_FW_API ?= $(WLAN_ROOT)/../fw-api/
 WLAN_PROFILE ?= default
-CONFIG_QCA_CLD_WLAN_PROFILE ?= $(WLAN_PROFILE)
 WLAN_PLATFORM_INC ?= $(WLAN_ROOT)/../platform/inc
 DATA_IPA_INC ?= $(WLAN_ROOT)/../../dataipa/drivers/platform/msm/include
 DATA_IPA_UAPI_INC ?= $(DATA_IPA_INC)/uapi
 ccflags-y := -D__ANDROID_COMMON_KERNEL__
 
-include $(WLAN_ROOT)/configs/$(CONFIG_QCA_CLD_WLAN_PROFILE)_defconfig
-ccflags-y += -include $(WLAN_ROOT)/configs/$(CONFIG_QCA_CLD_WLAN_PROFILE).h
+include $(WLAN_ROOT)/configs/$(WLAN_PROFILE)_defconfig
+ccflags-y += -include $(WLAN_ROOT)/configs/$(WLAN_PROFILE).h
 ccflags-y += -include $(WLAN_ROOT)/configs/config_to_feature.h
 
 # add configurations in WLAN_CFG_OVERRIDE
@@ -198,10 +197,6 @@ endif
 
 ifeq ($(CONFIG_QCOM_TDLS), y)
 HDD_OBJS +=	$(HDD_SRC_DIR)/wlan_hdd_tdls.o
-endif
-
-ifeq ($(CONFIG_WLAN_SYNC_TSF_PLUS), y)
-CONFIG_WLAN_SYNC_TSF := y
 endif
 
 ifeq ($(CONFIG_WLAN_SYNC_TSF), y)
@@ -528,8 +523,6 @@ endif
 
 ifeq ($(CONFIG_QCACLD_WLAN_CONNECTIVITY_DIAG_EVENT), y)
 HDD_OBJS += $(HDD_SRC_DIR)/wlan_hdd_connectivity_logging.o
-else ifeq ($(CONFIG_QCACLD_WLAN_CONNECTIVITY_LOGGING), y)
-HDD_OBJS += $(HDD_SRC_DIR)/wlan_hdd_connectivity_logging.o
 endif
 
 ifeq ($(CONFIG_WLAN_FEATURE_MCC_QUOTA), y)
@@ -548,6 +541,10 @@ ifeq ($(CONFIG_WIFI_POS_CONVERGED), y)
 ifeq ($(CONFIG_WIFI_POS_PASN), y)
 HDD_OBJS += $(HDD_SRC_DIR)/wlan_hdd_wifi_pos_pasn.o
 endif
+endif
+
+ifeq ($(CONFIG_WLAN_SYSFS_BITRATES), y)
+HDD_OBJS += $(HDD_SRC_DIR)/wlan_hdd_sysfs_bitrates.o
 endif
 
 $(call add-wlan-objs,hdd,$(HDD_OBJS))
@@ -1243,15 +1240,14 @@ FTM_OBJS := $(FTM_DISP_SRC)/wlan_ftm_init_deinit.o \
 	    $(FTM_DISP_SRC)/wlan_ftm_ucfg_api.o \
 	    $(FTM_CORE_SRC)/wlan_ftm_svc.o \
 	    $(TARGET_IF_FTM_SRC)/target_if_ftm.o
+endif
 
-ifeq ($(QCA_WIFI_FTM_NL80211), y)
+ifeq ($(CONFIG_QCA_WIFI_FTM_NL80211), y)
 FTM_OBJS += $(OS_IF_FTM_SRC)/wlan_cfg80211_ftm.o
 endif
 
 ifeq ($(CONFIG_LINUX_QCMBR), y)
 FTM_OBJS += $(OS_IF_FTM_SRC)/wlan_ioctl_ftm.o
-endif
-
 endif
 
 $(call add-wlan-objs,ftm,$(FTM_OBJS))
@@ -1652,8 +1648,6 @@ CONN_LOGGING_INC := -I$(WLAN_ROOT)/$(CONN_LOGGING_DIR)/inc
 
 ifeq ($(CONFIG_QCACLD_WLAN_CONNECTIVITY_DIAG_EVENT), y)
 CONN_LOGGING_OBJS := $(CONN_LOGGING_DIR)/src/wlan_connectivity_logging.o
-else ifeq ($(CONFIG_QCACLD_WLAN_CONNECTIVITY_LOGGING), y)
-CONN_LOGGING_OBJS := $(CONN_LOGGING_DIR)/src/wlan_connectivity_logging.o
 endif
 
 $(call add-wlan-objs,conn_logging,$(CONN_LOGGING_OBJS))
@@ -1933,6 +1927,7 @@ WMI_INC := -I$(WLAN_COMMON_INC)/$(WMI_INC_DIR)
 
 WMI_OBJS := $(WMI_OBJ_DIR)/wmi_unified.o \
 	    $(WMI_OBJ_DIR)/wmi_tlv_helper.o \
+	    $(WMI_OBJ_DIR)/wmi_tlv_platform.o \
 	    $(WMI_OBJ_DIR)/wmi_unified_tlv.o \
 	    $(WMI_OBJ_DIR)/wmi_unified_api.o \
 	    $(WMI_OBJ_DIR)/wmi_unified_reg_api.o \
@@ -2070,21 +2065,6 @@ TXRX_OBJS += 	$(TXRX_DIR)/ol_txrx_event.o
 endif
 
 ifneq (y,$(filter y,$(CONFIG_LITHIUM) $(CONFIG_BERYLLIUM) $(CONFIG_RHINE)))
-TXRX_OBJS += $(TXRX_DIR)/ol_txrx.o \
-		$(TXRX_DIR)/ol_cfg.o \
-                $(TXRX_DIR)/ol_rx.o \
-                $(TXRX_DIR)/ol_rx_fwd.o \
-                $(TXRX_DIR)/ol_txrx.o \
-                $(TXRX_DIR)/ol_rx_defrag.o \
-                $(TXRX_DIR)/ol_tx_desc.o \
-                $(TXRX_DIR)/ol_tx.o \
-                $(TXRX_DIR)/ol_rx_reorder_timeout.o \
-                $(TXRX_DIR)/ol_rx_reorder.o \
-                $(TXRX_DIR)/ol_rx_pn.o \
-                $(TXRX_DIR)/ol_txrx_peer_find.o \
-                $(TXRX_DIR)/ol_txrx_encap.o \
-                $(TXRX_DIR)/ol_tx_send.o
-
 ifeq ($(CONFIG_LL_DP_SUPPORT), y)
 
 TXRX_OBJS +=     $(TXRX_DIR)/ol_tx_ll.o
@@ -2093,10 +2073,6 @@ ifeq ($(CONFIG_WLAN_FASTPATH), y)
 TXRX_OBJS +=     $(TXRX_DIR)/ol_tx_ll_fastpath.o
 else
 TXRX_OBJS +=     $(TXRX_DIR)/ol_tx_ll_legacy.o
-endif
-
-ifeq ($(CONFIG_WLAN_TX_FLOW_CONTROL_V2), y)
-TXRX_OBJS +=     $(TXRX_DIR)/ol_txrx_flow_control.o
 endif
 
 endif #CONFIG_LL_DP_SUPPORT
@@ -2110,10 +2086,6 @@ endif #CONFIG_HL_DP_SUPPORT
 
 ifeq ($(CONFIG_WLAN_TX_FLOW_CONTROL_LEGACY), y)
 TXRX_OBJS +=     $(TXRX_DIR)/ol_txrx_legacy_flow_control.o
-endif
-
-ifeq ($(CONFIG_IPA_OFFLOAD), y)
-TXRX_OBJS +=     $(TXRX_DIR)/ol_txrx_ipa.o
 endif
 
 ifeq ($(CONFIG_QCA_SUPPORT_TX_THROTTLE), y)
@@ -2173,13 +2145,11 @@ DP_OBJS += $(DP_SRC)/be/dp_be.o
 DP_OBJS += $(DP_SRC)/be/dp_be_tx.o
 DP_OBJS += $(DP_SRC)/be/dp_be_rx.o
 
-ifeq ($(CONFIG_WIFI_MONITOR_SUPPORT), y)
-ifeq ($(CONFIG_WLAN_TX_MON_2_0), y)
+ifeq ($(CONFIG_WIFI_MONITOR_SUPPORT_Y_WLAN_TX_MON_2_0), y)
 DP_OBJS += $(DP_SRC)/monitor/2.0/dp_mon_2.0.o \
 		$(DP_SRC)/monitor/2.0/dp_mon_filter_2.0.o
 DP_OBJS += $(DP_SRC)/monitor/2.0/dp_tx_mon_2.0.o \
 		$(DP_SRC)/monitor/2.0/dp_tx_mon_status_2.0.o
-endif
 endif
 endif
 
@@ -2268,29 +2238,6 @@ $(call add-wlan-objs,pktlog,$(PKTLOG_OBJS))
 ############ HTT ############
 HTT_DIR :=      core/dp/htt
 HTT_INC :=      -I$(WLAN_ROOT)/$(HTT_DIR)
-
-ifneq (y,$(filter y,$(CONFIG_LITHIUM) $(CONFIG_BERYLLIUM) $(CONFIG_RHINE)))
-HTT_OBJS := $(HTT_DIR)/htt_tx.o \
-            $(HTT_DIR)/htt.o \
-            $(HTT_DIR)/htt_t2h.o \
-            $(HTT_DIR)/htt_h2t.o \
-            $(HTT_DIR)/htt_fw_stats.o \
-            $(HTT_DIR)/htt_rx.o
-
-ifeq ($(CONFIG_FEATURE_MONITOR_MODE_SUPPORT), y)
-HTT_OBJS += $(HTT_DIR)/htt_monitor_rx.o
-endif
-
-ifeq ($(CONFIG_LL_DP_SUPPORT), y)
-HTT_OBJS += $(HTT_DIR)/htt_rx_ll.o
-endif
-
-ifeq ($(CONFIG_HL_DP_SUPPORT), y)
-HTT_OBJS += $(HTT_DIR)/htt_rx_hl.o
-endif
-endif
-
-$(call add-wlan-objs,htt,$(HTT_OBJS))
 
 ############## INIT-DEINIT ###########
 INIT_DEINIT_DIR := init_deinit/dispatcher
@@ -2420,7 +2367,7 @@ TWT_CONV_INCS := -I$(WLAN_COMMON_INC)/umac \
 		 -I$(WLAN_ROOT)/components/target_if/twt/inc
 
 
-ifeq ($(CONFIG_WLAN_TWT_CONVERGED), y)
+ifeq ($(CONFIG_WLAN_FEATURE_TWT), y)
 TWT_CONV_OBJS := $(TWT_CONV_CMN_OSIF_SRC)/osif_twt_req.o \
 		 $(TWT_CONV_CMN_OSIF_SRC)/osif_twt_rsp.o \
 		 $(TWT_CONV_CMN_DISPATCHER_SRC)/wlan_twt_api.o \
@@ -2475,6 +2422,10 @@ CP_STATS_OBJS := $(CP_MC_STATS_COMPONENT_SRC)/wlan_cp_stats_mc_tgt_api.o	\
 
 endif
 
+ifeq ($(CONFIG_WLAN_CHIPSET_STATS), y)
+CP_STATS_OBJS += $(CP_STATS_CORE_SRC)/wlan_cp_stats_chipset_stats.o
+endif
+
 $(call add-wlan-objs,cp_stats,$(CP_STATS_OBJS))
 
 ###### DCS ######
@@ -2496,21 +2447,9 @@ endif
 $(call add-wlan-objs,dcs,$(DCS_OBJS))
 
 ####### AFC ######
-AFC_CMN_OSIF_SRC  := $(WLAN_COMMON_ROOT)/os_if/linux/afc/src
-AFC_CMN_CORE_SRC  := $(WLAN_COMMON_ROOT)/umac/afc/core/src
-AFC_CMN_DISP_SRC  := $(WLAN_COMMON_ROOT)/umac/afc/dispatcher/src
-
 AFC_CMN_OSIF_INC  := -I$(WLAN_COMMON_INC)/os_if/linux/afc/inc
 AFC_CMN_DISP_INC  := -I$(WLAN_COMMON_INC)/umac/afc/dispatcher/inc
 AFC_CMN_CORE_INC  := -I$(WLAN_COMMON_INC)/umac/afc/core/inc
-
-ifeq ($(CONFIG_AFC_SUPPORT), y)
-AFC_OBJS := $(AFC_CMN_OSIF_SRC)/wlan_cfg80211_afc.o \
-	    $(AFC_CMN_CORE_SRC)/wlan_afc_main.o \
-	    $(AFC_CMN_DISP_SRC)/wlan_afc_ucfg_api.o
-endif
-
-$(call add-wlan-objs,afc,$(AFC_OBJS))
 
 ###### INTEROP ISSUES AP ########
 INTEROP_ISSUES_AP_OS_IF_SRC      := os_if/interop_issues_ap/src
@@ -2599,11 +2538,9 @@ endif
 ifeq (y,$(filter y,$(CONFIG_LITHIUM) $(CONFIG_BERYLLIUM) $(CONFIG_RHINE)))
 WLAN_DP_COMP_OBJS += $(DP_COMP_CORE_DIR)/wlan_dp_prealloc.o
 
-ifeq ($(CONFIG_WLAN_TX_MON_2_0), y)
-ifeq ($(CONFIG_WLAN_DP_LOCAL_PKT_CAPTURE), y)
+ifeq ($(CONFIG_WLAN_TX_MON_2_0_Y_WLAN_DP_LOCAL_PKT_CAPTURE), y)
 WLAN_DP_COMP_OBJS += $(DP_COMP_OS_IF_DIR)/os_if_dp_local_pkt_capture.o
-endif #CONFIG_WLAN_DP_LOCAL_PKT_CAPTURE
-endif #CONFIG_WLAN_TX_MON_2_0
+endif
 endif
 
 ifeq ($(CONFIG_WLAN_FEATURE_DP_RX_THREADS), y)
@@ -2810,10 +2747,6 @@ HIF_COMMON_OBJS := $(WLAN_COMMON_ROOT)/$(HIF_DIR)/src/ath_procfs.o \
 		   $(WLAN_COMMON_ROOT)/$(HIF_DIR)/src/hif_runtime_pm.o \
 		   $(WLAN_COMMON_ROOT)/$(HIF_DIR)/src/hif_exec.o
 
-ifneq (y,$(filter y,$(CONFIG_LITHIUM) $(CONFIG_BERYLLIUM)))
-HIF_COMMON_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_DIR)/src/hif_main_legacy.o
-endif
-
 ifeq ($(CONFIG_WLAN_NAPI), y)
 HIF_COMMON_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_DIR)/src/hif_irq_affinity.o
 endif
@@ -2830,19 +2763,7 @@ HIF_CE_OBJS +=  $(WLAN_COMMON_ROOT)/$(HIF_CE_DIR)/ce_bmi.o
 endif
 
 ifeq ($(CONFIG_LITHIUM), y)
-ifeq ($(CONFIG_CNSS_QCA6290), y)
-HIF_CE_OBJS +=  $(WLAN_COMMON_ROOT)/$(HIF_DIR)/src/qca6290def.o
-endif
-
-ifeq ($(CONFIG_CNSS_QCA6390), y)
-HIF_CE_OBJS +=  $(WLAN_COMMON_ROOT)/$(HIF_DIR)/src/qca6390def.o
-endif
-
-ifeq ($(CONFIG_CNSS_QCA6490), y)
-HIF_CE_OBJS +=  $(WLAN_COMMON_ROOT)/$(HIF_DIR)/src/qca6490def.o
-endif
-
-ifeq ($(CONFIG_CNSS_QCA6750), y)
+ifeq ($(CONFIG_QCA6750_HEADERS_DEF), y)
 HIF_CE_OBJS +=  $(WLAN_COMMON_ROOT)/$(HIF_DIR)/src/qca6750def.o
 endif
 
@@ -2853,34 +2774,11 @@ HIF_CE_OBJS +=  $(WLAN_COMMON_ROOT)/$(HIF_DIR)/src/kiwidef.o
 endif
 
 HIF_CE_OBJS +=  $(WLAN_COMMON_ROOT)/$(HIF_CE_DIR)/ce_service_srng.o
-else
-HIF_CE_OBJS +=  $(WLAN_COMMON_ROOT)/$(HIF_CE_DIR)/ce_service_legacy.o
 endif
-
-HIF_USB_OBJS := $(WLAN_COMMON_ROOT)/$(HIF_USB_DIR)/usbdrv.o \
-                $(WLAN_COMMON_ROOT)/$(HIF_USB_DIR)/hif_usb.o \
-                $(WLAN_COMMON_ROOT)/$(HIF_USB_DIR)/if_usb.o \
-                $(WLAN_COMMON_ROOT)/$(HIF_USB_DIR)/regtable_usb.o
-
-HIF_SDIO_OBJS := $(WLAN_COMMON_ROOT)/$(HIF_SDIO_DIR)/hif_diag_reg_access.o \
-                 $(WLAN_COMMON_ROOT)/$(HIF_SDIO_DIR)/hif_sdio_dev.o \
-                 $(WLAN_COMMON_ROOT)/$(HIF_SDIO_DIR)/hif_sdio.o \
-                 $(WLAN_COMMON_ROOT)/$(HIF_SDIO_DIR)/regtable_sdio.o \
-                 $(WLAN_COMMON_ROOT)/$(HIF_SDIO_DIR)/transfer/transfer.o
 
 ifeq ($(CONFIG_WLAN_FEATURE_BMI), y)
 HIF_SDIO_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_SDIO_DIR)/hif_bmi_reg_access.o
 endif
-
-ifeq ($(CONFIG_SDIO_TRANSFER), adma)
-HIF_SDIO_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_SDIO_DIR)/transfer/adma.o
-else
-HIF_SDIO_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_SDIO_DIR)/transfer/mailbox.o
-endif
-
-HIF_SDIO_NATIVE_OBJS := $(WLAN_COMMON_ROOT)/$(HIF_SDIO_NATIVE_SRC_DIR)/hif.o \
-                        $(WLAN_COMMON_ROOT)/$(HIF_SDIO_NATIVE_SRC_DIR)/hif_scatter.o \
-                        $(WLAN_COMMON_ROOT)/$(HIF_SDIO_NATIVE_SRC_DIR)/dev_quirks.o
 
 ifeq ($(CONFIG_WLAN_NAPI), y)
 HIF_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_DIR)/src/hif_napi.o
@@ -2892,8 +2790,6 @@ endif
 
 HIF_PCIE_OBJS := $(WLAN_COMMON_ROOT)/$(HIF_PCIE_DIR)/if_pci.o
 HIF_IPCIE_OBJS := $(WLAN_COMMON_ROOT)/$(HIF_IPCIE_DIR)/if_ipci.o
-HIF_SNOC_OBJS := $(WLAN_COMMON_ROOT)/$(HIF_SNOC_DIR)/if_snoc.o
-HIF_SDIO_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_SDIO_DIR)/if_sdio.o
 
 HIF_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_DISPATCHER_DIR)/multibus.o
 HIF_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_DISPATCHER_DIR)/dummy.o
@@ -2912,19 +2808,16 @@ HIF_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_DISPATCHER_DIR)/multibus_ipci.o
 endif
 
 ifeq ($(CONFIG_HIF_SNOC), y)
-HIF_OBJS += $(HIF_SNOC_OBJS)
 HIF_OBJS += $(HIF_CE_OBJS)
 HIF_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_DISPATCHER_DIR)/multibus_snoc.o
 endif
 
 ifeq ($(CONFIG_HIF_SDIO), y)
 HIF_OBJS += $(HIF_SDIO_OBJS)
-HIF_OBJS += $(HIF_SDIO_NATIVE_OBJS)
 HIF_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_DISPATCHER_DIR)/multibus_sdio.o
 endif
 
 ifeq ($(CONFIG_HIF_USB), y)
-HIF_OBJS += $(HIF_USB_OBJS)
 HIF_OBJS += $(WLAN_COMMON_ROOT)/$(HIF_DISPATCHER_DIR)/multibus_usb.o
 endif
 
@@ -2952,17 +2845,7 @@ HAL_OBJS +=	$(WLAN_COMMON_ROOT)/$(HAL_DIR)/wifi3.0/li/hal_li_generic_api.o
 
 HAL_OBJS +=	$(WLAN_COMMON_ROOT)/$(HAL_DIR)/wifi3.0/li/hal_li_reo.o
 
-ifeq ($(CONFIG_CNSS_QCA6290), y)
-HAL_INC += -I$(WLAN_COMMON_INC)/$(HAL_DIR)/wifi3.0/qca6290
-HAL_OBJS += $(WLAN_COMMON_ROOT)/$(HAL_DIR)/wifi3.0/qca6290/hal_6290.o
-else ifeq ($(CONFIG_CNSS_QCA6390), y)
-HAL_INC += -I$(WLAN_COMMON_INC)/$(HAL_DIR)/wifi3.0/qca6390
-HAL_OBJS += $(WLAN_COMMON_ROOT)/$(HAL_DIR)/wifi3.0/qca6390/hal_6390.o
-else ifeq ($(CONFIG_CNSS_QCA6490), y)
-HAL_INC += -I$(WLAN_COMMON_INC)/$(HAL_DIR)/wifi3.0/qca6490
-HAL_OBJS += $(WLAN_COMMON_ROOT)/$(HAL_DIR)/wifi3.0/qca6490/hal_6490.o
-else ifeq ($(CONFIG_CNSS_QCA6750), y)
-HAL_INC += -I$(WLAN_COMMON_INC)/$(HAL_DIR)/wifi3.0/qca6750
+ifeq ($(CONFIG_QCA6750_HEADERS_DEF), y)
 HAL_OBJS += $(WLAN_COMMON_ROOT)/$(HAL_DIR)/wifi3.0/qca6750/hal_6750.o
 else
 #error "Not 11ax"
@@ -2988,21 +2871,6 @@ ccflags-y += -DINCLUDE_HAL_KIWI
 endif
 
 endif #### CONFIG_BERYLLIUM ####
-
-ifeq ($(CONFIG_RHINE), y)
-HAL_INC += 	-I$(WLAN_COMMON_INC)/$(HAL_DIR)/wifi3.0/rh
-
-HAL_OBJS +=	$(WLAN_COMMON_ROOT)/$(HAL_DIR)/wifi3.0/rh/hal_rh_generic_api.o
-
-ifeq ($(CONFIG_CNSS_WCN6450), y)
-#TODO fix this for RHINE
-HAL_INC += -I$(WLAN_COMMON_INC)/$(HAL_DIR)/wifi3.0/wcn6450
-HAL_OBJS += $(WLAN_COMMON_ROOT)/$(HAL_DIR)/wifi3.0/wcn6450/hal_wcn6450.o
-else
-#error "Not RHINE"
-endif
-
-endif #####CONFIG_RHINE####
 
 $(call add-wlan-objs,hal,$(HAL_OBJS))
 
@@ -3109,23 +2977,7 @@ $(call add-wlan-objs,pld,$(PLD_OBJS))
 
 TARGET_INC := 	-I$(WLAN_FW_API)/fw
 
-ifeq ($(CONFIG_CNSS_QCA6290), y)
-ifeq ($(CONFIG_QCA6290_11AX), y)
-TARGET_INC +=	-I$(WLAN_FW_API)/hw/qca6290/11ax/v2
-else
-TARGET_INC +=	-I$(WLAN_FW_API)/hw/qca6290/v2
-endif
-endif
-
-ifeq ($(CONFIG_CNSS_QCA6390), y)
-TARGET_INC +=	-I$(WLAN_FW_API)/hw/qca6390/v1
-endif
-
-ifeq ($(CONFIG_CNSS_QCA6490), y)
-TARGET_INC +=	-I$(WLAN_FW_API)/hw/qca6490/v1
-endif
-
-ifeq ($(CONFIG_CNSS_QCA6750), y)
+ifeq ($(CONFIG_QCA6750_HEADERS_DEF), y)
 TARGET_INC +=	-I$(WLAN_FW_API)/hw/qca6750/v1
 endif
 
@@ -3341,14 +3193,8 @@ ccflags-$(CONFIG_IPA_OUT_OF_TREE) += -I$(DATA_IPA_INC)
 ccflags-$(CONFIG_IPA_OUT_OF_TREE) += -I$(DATA_IPA_UAPI_INC)
 
 # Module information used by KBuild framework
-obj-$(CONFIG_QCA_CLD_WLAN) += $(MODNAME).o
-ifeq ($(CONFIG_WLAN_RESIDENT_DRIVER), y)
-$(MODNAME)-y := $(HDD_SRC_DIR)/wlan_hdd_main_module.o
-obj-$(CONFIG_QCA_CLD_WLAN) += wlan_resident.o
-wlan_resident-y := $(OBJS)
-else
+obj-m += $(MODNAME).o
 $(MODNAME)-y := $(OBJS)
-endif
 OBJS_DIRS += $(dir $(OBJS)) \
 	     $(WLAN_COMMON_ROOT)/$(HIF_CE_DIR)/ \
 	     $(QDF_OBJ_DIR)/ \
