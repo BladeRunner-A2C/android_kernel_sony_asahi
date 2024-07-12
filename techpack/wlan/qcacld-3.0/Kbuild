@@ -1,22 +1,4 @@
-# We can build either as part of a standalone Kernel build or as
-# an external module.  Determine which mechanism is being used
-ifeq ($(MODNAME),)
-	KERNEL_BUILD := y
-else
-	KERNEL_BUILD := n
-endif
-
-ifeq ($(KERNEL_BUILD), y)
-	# These are provided in external module based builds
-	# Need to explicitly define for Kernel-based builds
-	MODNAME := wlan
-	WLAN_ROOT := drivers/staging/qcacld-3.0
-	WLAN_COMMON_ROOT := cmn
-	WLAN_COMMON_INC := $(WLAN_ROOT)/$(WLAN_COMMON_ROOT)
-	WLAN_FW_API := $(WLAN_ROOT)/../fw-api/
-	WLAN_PROFILE := default
-endif
-
+MODNAME ?= wlan
 WLAN_COMMON_ROOT ?= cmn
 WLAN_COMMON_INC ?= $(WLAN_ROOT)/$(WLAN_COMMON_ROOT)
 WLAN_FW_API ?= $(WLAN_ROOT)/../fw-api/
@@ -25,22 +7,6 @@ CONFIG_QCA_CLD_WLAN_PROFILE ?= $(WLAN_PROFILE)
 WLAN_PLATFORM_INC ?= $(WLAN_ROOT)/../platform/inc
 DATA_IPA_INC ?= $(WLAN_ROOT)/../dataipa/drivers/platform/msm/include
 DATA_IPA_UAPI_INC ?= $(DATA_IPA_INC)/uapi
-
-ifeq ($(KERNEL_BUILD), n)
-ifneq ($(ANDROID_BUILD_TOP),)
-      ANDROID_BUILD_TOP_REL := $(shell python -c "import os.path; print(os.path.relpath('$(ANDROID_BUILD_TOP)'))")
-      override WLAN_ROOT := $(ANDROID_BUILD_TOP_REL)/$(WLAN_ROOT)
-      override WLAN_COMMON_INC := $(ANDROID_BUILD_TOP_REL)/$(WLAN_COMMON_INC)
-      override WLAN_FW_API := $(ANDROID_BUILD_TOP_REL)/$(WLAN_FW_API)
-else ifneq ($(LINUX_BUILD_TOP),)
-      LINUX_BUILD_TOP_REL := $(shell python -c "import os.path; print(os.path.relpath('$(LINUX_BUILD_TOP)'))")
-      $(warning "LINUX_BUILD_TOP_REL=: $(LINUX_BUILD_TOP_REL)")
-      override WLAN_ROOT := $(LINUX_BUILD_TOP_REL)/qcacld-3.0
-      override WLAN_COMMON_ROOT ?= cmn
-      override WLAN_COMMON_INC ?= $(WLAN_ROOT)/$(WLAN_COMMON_ROOT)
-      override WLAN_FW_API := $(WLAN_ROOT)/../fw-api
-endif
-endif
 
 include $(WLAN_ROOT)/configs/$(CONFIG_QCA_CLD_WLAN_PROFILE)_defconfig
 
