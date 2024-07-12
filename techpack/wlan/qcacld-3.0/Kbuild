@@ -1,5 +1,14 @@
 kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
 
+ifeq ($(BOARD_PLATFORM),)
+BOARD_PLATFORM=$(CONFIG_BOARD_PLATFORM)
+endif
+
+ifeq ($(BOARD_PLATFORM), pineapple)
+WLAN_PROFILE := pineapple_gki_kiwi-v2
+MODNAME := qca_cld3_kiwi_v2
+endif
+
 MODNAME ?= wlan
 WLAN_ROOT ?= $(kbuild-dir)
 WLAN_COMMON_ROOT ?= cmn
