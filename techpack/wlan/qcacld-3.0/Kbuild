@@ -1,14 +1,19 @@
+kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+
 MODNAME ?= wlan
+WLAN_ROOT ?= $(kbuild-dir)
 WLAN_COMMON_ROOT ?= cmn
 WLAN_COMMON_INC ?= $(WLAN_ROOT)/$(WLAN_COMMON_ROOT)
 WLAN_FW_API ?= $(WLAN_ROOT)/../fw-api/
 WLAN_PROFILE ?= default
 CONFIG_QCA_CLD_WLAN_PROFILE ?= $(WLAN_PROFILE)
 WLAN_PLATFORM_INC ?= $(WLAN_ROOT)/../platform/inc
-DATA_IPA_INC ?= $(WLAN_ROOT)/../dataipa/drivers/platform/msm/include
+DATA_IPA_INC ?= $(WLAN_ROOT)/../../dataipa/drivers/platform/msm/include
 DATA_IPA_UAPI_INC ?= $(DATA_IPA_INC)/uapi
 
 include $(WLAN_ROOT)/configs/$(CONFIG_QCA_CLD_WLAN_PROFILE)_defconfig
+ccflags-y += -include $(WLAN_ROOT)/configs/$(CONFIG_QCA_CLD_WLAN_PROFILE).h
+ccflags-y += -include $(WLAN_ROOT)/configs/config_to_feature.h
 
 # add configurations in WLAN_CFG_OVERRIDE
 $(foreach cfg, $(WLAN_CFG_OVERRIDE), \
