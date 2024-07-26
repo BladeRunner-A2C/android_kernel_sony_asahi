@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
+kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+ccflags-y := -DUBWCP_TRACE_INCLUDE_PATH=$(kbuild-dir)
+
 ubwcp-objs := ubwcp_main.o ubwcp_hw.o
 obj-m += ubwcp.o
