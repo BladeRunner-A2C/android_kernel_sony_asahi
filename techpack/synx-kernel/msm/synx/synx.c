@@ -2529,10 +2529,19 @@ static unsigned int synx_poll(struct file *filep,
 	return rc;
 }
 
+extern bool ipclite_ready;
+
 struct synx_session *synx_initialize(
 	struct synx_initialization_params *params)
 {
 	struct synx_client *client;
+	int retry = 0;
+
+	while (!ipclite_ready && retry++ < 50)
+		msleep(50);
+
+	if (!ipclite_ready)
+		return ERR_PTR(-SYNX_INVALID);
 
 	if (IS_ERR_OR_NULL(params))
 		return ERR_PTR(-SYNX_INVALID);

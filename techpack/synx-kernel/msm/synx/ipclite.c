@@ -1827,6 +1827,9 @@ static int ipclite_version_setup(struct device_node *pn)
 }
 /* IPCLite Version setup related functions end */
 
+bool ipclite_ready;
+EXPORT_SYMBOL(ipclite_ready);
+
 /* Start of IPCLite Init*/
 static int ipclite_probe(struct platform_device *pdev)
 {
@@ -1853,6 +1856,7 @@ static int ipclite_probe(struct platform_device *pdev)
 		goto error;
 	}
 
+	ipclite_ready = true;
 	return ret;
 
 error:
