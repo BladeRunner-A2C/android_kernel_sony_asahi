@@ -52,5 +52,7 @@ if FB || SGI_NEWPORT_CONSOLE
 
 endif
 
+config SOMC_HDMI_DETECT
+	tristate "SOMC HDMI Detection driver"
 
 endmenu
