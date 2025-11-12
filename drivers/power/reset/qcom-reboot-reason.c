@@ -17,6 +17,7 @@
 #include <linux/nvmem-consumer.h>
 #include <linux/of_device.h>
 #include <linux/of_platform.h>
+#include <linux/panic_notifier.h>
 
 struct qcom_reboot_reason {
 	struct device *dev;
@@ -39,6 +40,17 @@ static struct poweroff_reason pon_reasons[] = {
 	{ "dm-verity enforcing",	0x05, 0x1 },
 	{ "keys clear",			0x06, 0x1 },
 	{ "shipmode",			0x20, 0x2 },
+	{ "normal",			0x07 },
+	{ "panic",			0x40 },
+	{ "hwwd",			0x41 },
+	{ "rd_ok",			0x49 },
+	{ "rd_wd",			0x4C },
+	{ "rd_space_err",		0x4D },
+	{ "rd_kp",			0x4E },
+	{ "rd_err",			0x4F },
+	{ "oem-50",			0x51 },
+	{ "oem-53",			0x60 },
+	{ "oem-4E",			0x61 },
 	{}
 };
 
