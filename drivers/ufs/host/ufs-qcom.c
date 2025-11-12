@@ -43,6 +43,10 @@
 #include <ufs/ufs_quirks.h>
 #include <ufs/ufshcd-crypto-qti.h>
 
+#include<scsi/scsi_dbg.h>
+#include<scsi/scsi_common.h>
+#include<scsi/scsi_device.h>
+
 #define MCQ_QCFGPTR_MASK	GENMASK(7, 0)
 #define MCQ_QCFGPTR_UNIT	0x200
 #define MCQ_SQATTR_OFFSET(c) \
